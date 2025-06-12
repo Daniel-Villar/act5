@@ -53,7 +53,7 @@ class _NoteState extends State<Note> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const Text(
-                "Registro de Productos",
+                "Registro de los Productos",
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 28,
@@ -306,53 +306,57 @@ class _NoteState extends State<Note> {
                 ),
               ),
               const SizedBox(height: 40),
-ElevatedButton(
-  onPressed: () async {
-    try {
-      await FirebaseFirestore.instance.collection('productos').add({
-        'idProducto': _idProductoController.text,
-        'nombre': _nombreController.text,
-        'precio': double.tryParse(_precioController.text) ?? 0,
-        'descripcion': _descripcionController.text,
-        'precioMayoreo': double.tryParse(_precioMayoreoController.text) ?? 0,
-        'stock': int.tryParse(_stackController.text) ?? 0,
-        'demanda': _demandaController.text,
-        'idSucursal': _idSucursalController.text,
-      });
+              ElevatedButton(
+                onPressed: () async {
+                  try {
+                    await FirebaseFirestore.instance
+                        .collection('productos')
+                        .add({
+                          'idProducto': _idProductoController.text,
+                          'nombre': _nombreController.text,
+                          'precio':
+                              double.tryParse(_precioController.text) ?? 0,
+                          'descripcion': _descripcionController.text,
+                          'precioMayoreo':
+                              double.tryParse(_precioMayoreoController.text) ??
+                              0,
+                          'stock': int.tryParse(_stackController.text) ?? 0,
+                          'demanda': _demandaController.text,
+                          'idSucursal': _idSucursalController.text,
+                        });
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Producto guardado exitosamente')),
-      );
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Producto guardado exitosamente')),
+                    );
 
-      _idProductoController.clear();
-      _nombreController.clear();
-      _precioController.clear();
-      _descripcionController.clear();
-      _precioMayoreoController.clear();
-      _stackController.clear();
-      _demandaController.clear();
-      _idSucursalController.clear();
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error al guardar: $e')),
-      );
-    }
-  },
-  style: ElevatedButton.styleFrom(
-    backgroundColor: const Color.fromARGB(255, 230, 215, 240),
-    foregroundColor: Colors.deepPurple,
-    padding: const EdgeInsets.symmetric(vertical: 15),
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(25),
-    ),
-    elevation: 3,
-  ),
-  child: const Text(
-    "Guardar Producto",
-    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w200),
-  ),
-),
-
+                    _idProductoController.clear();
+                    _nombreController.clear();
+                    _precioController.clear();
+                    _descripcionController.clear();
+                    _precioMayoreoController.clear();
+                    _stackController.clear();
+                    _demandaController.clear();
+                    _idSucursalController.clear();
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Error al guardar: $e')),
+                    );
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color.fromARGB(255, 230, 215, 240),
+                  foregroundColor: Colors.deepPurple,
+                  padding: const EdgeInsets.symmetric(vertical: 15),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(25),
+                  ),
+                  elevation: 3,
+                ),
+                child: const Text(
+                  "Guardar Producto",
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w200),
+                ),
+              ),
             ],
           ),
         ),
