@@ -75,7 +75,7 @@ class _ProductosScreenState extends State<ProductosScreen> {
       appBar: AppBar(
         title: const Text("Gestión de Productos"),
         centerTitle: true,
-        backgroundColor: const Color.fromARGB(255, 180, 98, 221),
+        backgroundColor: const Color.fromARGB(255, 255, 160, 200),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
@@ -87,7 +87,7 @@ class _ProductosScreenState extends State<ProductosScreen> {
                 style: TextStyle(
                   fontSize: 30,
                   fontWeight: FontWeight.bold,
-                  color: Color.fromARGB(255, 68, 171, 255),
+                  color: Color.fromARGB(255, 170, 168, 255),
                 ),
               ),
               const SizedBox(height: 15),
@@ -198,8 +198,8 @@ class _ProductosScreenState extends State<ProductosScreen> {
               ElevatedButton(
                 onPressed: agregarProducto,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color.fromARGB(255, 168, 68, 255),
-                  foregroundColor: Colors.white,
+                  backgroundColor: const Color.fromARGB(255, 255, 160, 200),
+                  foregroundColor: const Color.fromARGB(255, 0, 0, 0),
                   padding: const EdgeInsets.symmetric(
                     horizontal: 40,
                     vertical: 15,
