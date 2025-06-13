@@ -1,18 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:myapp/notes.dart';
+import 'package:myapp/notes.dart'; // Cambiado de notes.dart a productos_screen.dart
 import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
-void main(List<String> args) async{
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: FirebaseOptions(
-    apiKey: "AIzaSyAUeZfZLOjyL5gy0_EciR-84A86TiSreHU", 
-    appId: "1:601302489159:android:3a9ef512c9b437af9d7962", 
-    messagingSenderId: "601302489159", 
-    projectId:"act5productos")
-  );
-
-  runApp(MyApp());
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -20,6 +14,14 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(debugShowCheckedModeBanner: false, home: Note());
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home:
+          const ProductosScreen(), // Cambiado de ReservasHotelScreen a ProductosScreen
+      theme: ThemeData(
+        primarySwatch: Colors.deepPurple,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+      ),
+    );
   }
 }

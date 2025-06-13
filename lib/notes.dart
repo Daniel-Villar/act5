@@ -1,366 +1,364 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class Note extends StatefulWidget {
-  const Note({super.key});
+class ProductosScreen extends StatefulWidget {
+  const ProductosScreen({super.key});
 
   @override
-  State<Note> createState() => _NoteState();
+  State<ProductosScreen> createState() => _ProductosScreenState();
 }
 
-class _NoteState extends State<Note> {
-  // Controladores para los campos de texto
-  final TextEditingController _idProductoController = TextEditingController();
-  final TextEditingController _nombreController = TextEditingController();
-  final TextEditingController _precioController = TextEditingController();
-  final TextEditingController _descripcionController = TextEditingController();
-  final TextEditingController _precioMayoreoController =
-      TextEditingController();
-  final TextEditingController _stackController = TextEditingController();
-  final TextEditingController _demandaController = TextEditingController();
-  final TextEditingController _idSucursalController = TextEditingController();
+class _ProductosScreenState extends State<ProductosScreen> {
+  final TextEditingController idProductoController = TextEditingController();
+  final TextEditingController nombreController = TextEditingController();
+  final TextEditingController precioController = TextEditingController();
+  final TextEditingController descripcionController = TextEditingController();
+  final TextEditingController precioMayoreoController = TextEditingController();
+  final TextEditingController stackController = TextEditingController();
+  final TextEditingController demandaController = TextEditingController();
+  final TextEditingController idSucursalController = TextEditingController();
 
-  @override
-  void dispose() {
-    // Liberar los controladores cuando el widget se destruye
-    _idProductoController.dispose();
-    _nombreController.dispose();
-    _precioController.dispose();
-    _descripcionController.dispose();
-    _precioMayoreoController.dispose();
-    _stackController.dispose();
-    _demandaController.dispose();
-    _idSucursalController.dispose();
-    super.dispose();
+  Future<void> agregarProducto() async {
+    // Validación básica para evitar campos vacíos
+    if (idProductoController.text.trim().isEmpty ||
+        nombreController.text.trim().isEmpty ||
+        precioController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Por favor, complete los campos obligatorios (ID, Nombre y Precio).',
+          ),
+        ),
+      );
+      return;
+    }
+
+    try {
+      await FirebaseFirestore.instance.collection('productos').add({
+        'id_producto': idProductoController.text.trim(),
+        'nombre': nombreController.text.trim(),
+        'precio': double.tryParse(precioController.text.trim()) ?? 0.0,
+        'descripcion': descripcionController.text.trim(),
+        'precio_mayoreo':
+            double.tryParse(precioMayoreoController.text.trim()) ?? 0.0,
+        'stack': int.tryParse(stackController.text.trim()) ?? 0,
+        'demanda': demandaController.text.trim(),
+        'id_sucursal': idSucursalController.text.trim(),
+        'timestamp': FieldValue.serverTimestamp(),
+      });
+
+      _limpiarControladores();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('¡Producto agregado exitosamente!')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error al agregar producto: $e')));
+    }
+  }
+
+  void _limpiarControladores() {
+    idProductoController.clear();
+    nombreController.clear();
+    precioController.clear();
+    descripcionController.clear();
+    precioMayoreoController.clear();
+    stackController.clear();
+    demandaController.clear();
+    idSucursalController.clear();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          "Productos",
-          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-        ),
+        title: const Text("Gestión de Productos"),
         centerTitle: true,
-        backgroundColor: Colors.amber,
-        elevation: 0,
+        backgroundColor: const Color.fromARGB(255, 180, 98, 221),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(20.0),
+        padding: const EdgeInsets.all(16),
         child: SingleChildScrollView(
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const Text(
-                "Registro de los Productos",
-                textAlign: TextAlign.center,
+                "Agregar Producto",
                 style: TextStyle(
-                  fontSize: 28,
+                  fontSize: 30,
                   fontWeight: FontWeight.bold,
-                  color: Colors.amber,
+                  color: Color.fromARGB(255, 68, 171, 255),
                 ),
               ),
-              const SizedBox(height: 30),
+              const SizedBox(height: 15),
 
-              // Campo para ID Producto
+              // Campos del formulario
               TextField(
-                controller: _idProductoController,
+                controller: idProductoController,
                 decoration: InputDecoration(
-                  hintText: "ID Producto",
+                  labelText: 'ID del Producto*',
+                  hintText: 'Ingrese el ID único del producto',
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                    borderSide: BorderSide(
-                      color: Colors.grey.shade400,
-                      width: 1.0,
-                    ),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                    borderSide: BorderSide(
-                      color: Colors.amber.shade700,
-                      width: 2.0,
-                    ),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 15,
-                    vertical: 15,
+                    borderRadius: BorderRadius.circular(30),
                   ),
                 ),
-              ),
-              const SizedBox(height: 20),
-
-              // Campo para Nombre
-              TextField(
-                controller: _nombreController,
-                decoration: InputDecoration(
-                  hintText: "Nombre del Producto",
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                    borderSide: BorderSide(
-                      color: Colors.grey.shade400,
-                      width: 1.0,
-                    ),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                    borderSide: BorderSide(
-                      color: Colors.amber.shade700,
-                      width: 2.0,
-                    ),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 15,
-                    vertical: 15,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
-
-              // Campo para Precio
-              TextField(
-                controller: _precioController,
                 keyboardType: TextInputType.number,
+              ),
+              const SizedBox(height: 15),
+
+              TextField(
+                controller: nombreController,
                 decoration: InputDecoration(
-                  hintText: "Precio",
+                  labelText: 'Nombre*',
+                  hintText: 'Ingrese el nombre del producto',
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                    borderSide: BorderSide(
-                      color: Colors.grey.shade400,
-                      width: 1.0,
-                    ),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                    borderSide: BorderSide(
-                      color: Colors.amber.shade700,
-                      width: 2.0,
-                    ),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 15,
-                    vertical: 15,
+                    borderRadius: BorderRadius.circular(30),
                   ),
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 15),
 
-              // Campo para Descripción
               TextField(
-                controller: _descripcionController,
-                maxLines: 3,
+                controller: precioController,
                 decoration: InputDecoration(
-                  hintText: "Descripción",
+                  labelText: 'Precio*',
+                  hintText: 'Ingrese el precio al público',
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                    borderSide: BorderSide(
-                      color: Colors.grey.shade400,
-                      width: 1.0,
-                    ),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                    borderSide: BorderSide(
-                      color: Colors.amber.shade700,
-                      width: 2.0,
-                    ),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 15,
-                    vertical: 15,
+                    borderRadius: BorderRadius.circular(30),
                   ),
                 ),
-              ),
-              const SizedBox(height: 20),
-
-              // Campo para Precio Mayoreo
-              TextField(
-                controller: _precioMayoreoController,
                 keyboardType: TextInputType.number,
+              ),
+              const SizedBox(height: 15),
+
+              TextField(
+                controller: descripcionController,
                 decoration: InputDecoration(
-                  hintText: "Precio Mayoreo",
+                  labelText: 'Descripción',
+                  hintText: 'Ingrese una descripción del producto',
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                    borderSide: BorderSide(
-                      color: Colors.grey.shade400,
-                      width: 1.0,
-                    ),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                    borderSide: BorderSide(
-                      color: Colors.amber.shade700,
-                      width: 2.0,
-                    ),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 15,
-                    vertical: 15,
+                    borderRadius: BorderRadius.circular(30),
                   ),
                 ),
+                maxLines: 2,
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 15),
 
-              // Campo para Stack
               TextField(
-                controller: _stackController,
+                controller: precioMayoreoController,
+                decoration: InputDecoration(
+                  labelText: 'Precio Mayoreo',
+                  hintText: 'Ingrese el precio para ventas al mayoreo',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                ),
                 keyboardType: TextInputType.number,
-                decoration: InputDecoration(
-                  hintText: "Stock",
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                    borderSide: BorderSide(
-                      color: Colors.grey.shade400,
-                      width: 1.0,
-                    ),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                    borderSide: BorderSide(
-                      color: Colors.amber.shade700,
-                      width: 2.0,
-                    ),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 15,
-                    vertical: 15,
-                  ),
-                ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 15),
 
-              // Campo para Demanda
               TextField(
-                controller: _demandaController,
+                controller: stackController,
                 decoration: InputDecoration(
-                  hintText: "Demanda (Alta/Media/Baja)",
+                  labelText: 'Stock',
+                  hintText: 'Ingrese la cantidad en inventario',
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                    borderSide: BorderSide(
-                      color: Colors.grey.shade400,
-                      width: 1.0,
-                    ),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                    borderSide: BorderSide(
-                      color: Colors.amber.shade700,
-                      width: 2.0,
-                    ),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 15,
-                    vertical: 15,
+                    borderRadius: BorderRadius.circular(30),
                   ),
                 ),
+                keyboardType: TextInputType.number,
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 15),
 
-              // Campo para ID Sucursal
               TextField(
-                controller: _idSucursalController,
+                controller: demandaController,
                 decoration: InputDecoration(
-                  hintText: "ID Sucursal",
+                  labelText: 'Demanda',
+                  hintText: 'Ingrese el nivel de demanda (Alta/Media/Baja)',
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                    borderSide: BorderSide(
-                      color: Colors.grey.shade400,
-                      width: 1.0,
-                    ),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
-                    borderSide: BorderSide(
-                      color: Colors.amber.shade700,
-                      width: 2.0,
-                    ),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 15,
-                    vertical: 15,
+                    borderRadius: BorderRadius.circular(30),
                   ),
                 ),
               ),
-              const SizedBox(height: 40),
+              const SizedBox(height: 15),
+
+              TextField(
+                controller: idSucursalController,
+                decoration: InputDecoration(
+                  labelText: 'ID Sucursal',
+                  hintText: 'Ingrese el ID de la sucursal',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                ),
+                keyboardType: TextInputType.number,
+              ),
+              const SizedBox(height: 15),
+
               ElevatedButton(
-                onPressed: () async {
-                  try {
-                    await FirebaseFirestore.instance
+                onPressed: agregarProducto,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color.fromARGB(255, 168, 68, 255),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 40,
+                    vertical: 15,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                ),
+                child: const Text('Guardar Producto'),
+              ),
+
+              const SizedBox(height: 20),
+              const Divider(),
+              const SizedBox(height: 10),
+
+              const Text(
+                "Inventario de Productos",
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.blueAccent,
+                ),
+              ),
+              const SizedBox(height: 10),
+
+              StreamBuilder<QuerySnapshot>(
+                stream:
+                    FirebaseFirestore.instance
                         .collection('productos')
-                        .add({
-                          'idProducto': _idProductoController.text,
-                          'nombre': _nombreController.text,
-                          'precio':
-                              double.tryParse(_precioController.text) ?? 0,
-                          'descripcion': _descripcionController.text,
-                          'precioMayoreo':
-                              double.tryParse(_precioMayoreoController.text) ??
-                              0,
-                          'stock': int.tryParse(_stackController.text) ?? 0,
-                          'demanda': _demandaController.text,
-                          'idSucursal': _idSucursalController.text,
-                        });
-
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Producto guardado exitosamente')),
-                    );
-
-                    _idProductoController.clear();
-                    _nombreController.clear();
-                    _precioController.clear();
-                    _descripcionController.clear();
-                    _precioMayoreoController.clear();
-                    _stackController.clear();
-                    _demandaController.clear();
-                    _idSucursalController.clear();
-                  } catch (e) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Error al guardar: $e')),
+                        .orderBy('timestamp', descending: true)
+                        .snapshots(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  if (snapshot.hasError) {
+                    return Center(child: Text('Error: ${snapshot.error}'));
+                  }
+                  if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                    return const Center(
+                      child: Text("No hay productos registrados."),
                     );
                   }
+
+                  final docs = snapshot.data!.docs;
+
+                  return ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: docs.length,
+                    itemBuilder: (context, index) {
+                      final doc = docs[index];
+                      final data = doc.data() as Map<String, dynamic>;
+                      final idProducto = data['id_producto'] ?? 'N/A';
+                      final nombre = data['nombre'] ?? 'N/A';
+                      final precio =
+                          data['precio']?.toStringAsFixed(2) ?? '0.00';
+                      final descripcion =
+                          data['descripcion'] ?? 'Sin descripción';
+                      final precioMayoreo =
+                          data['precio_mayoreo']?.toStringAsFixed(2) ?? '0.00';
+                      final stack = data['stack']?.toString() ?? '0';
+                      final demanda = data['demanda'] ?? 'N/A';
+                      final idSucursal = data['id_sucursal'] ?? 'N/A';
+
+                      return Card(
+                        margin: const EdgeInsets.symmetric(vertical: 8.0),
+                        elevation: 4,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                nombre,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18,
+                                  color: Colors.deepPurple,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text("ID: $idProducto"),
+                              Text("Precio: \$$precio"),
+                              Text("Precio Mayoreo: \$$precioMayoreo"),
+                              Text("Stock: $stack"),
+                              Text("Demanda: $demanda"),
+                              Text("Sucursal: $idSucursal"),
+                              Text("Descripción: $descripcion"),
+
+                              Align(
+                                alignment: Alignment.bottomRight,
+                                child: IconButton(
+                                  onPressed: () {
+                                    _mostrarDialogoEliminar(context, doc.id);
+                                  },
+                                  icon: const Icon(
+                                    Icons.delete_forever,
+                                    color: Colors.red,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  );
                 },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color.fromARGB(255, 230, 215, 240),
-                  foregroundColor: Colors.deepPurple,
-                  padding: const EdgeInsets.symmetric(vertical: 15),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(25),
-                  ),
-                  elevation: 3,
-                ),
-                child: const Text(
-                  "Guardar Producto",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w200),
-                ),
               ),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  void _mostrarDialogoEliminar(BuildContext context, String docId) {
+    showDialog(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: const Text("Confirmar eliminación"),
+            content: const Text(
+              "¿Estás seguro de que quieres eliminar este producto?",
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text("Cancelar"),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  FirebaseFirestore.instance
+                      .collection('productos')
+                      .doc(docId)
+                      .delete()
+                      .then((_) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Producto eliminado')),
+                        );
+                      })
+                      .catchError((error) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Error al eliminar: $error')),
+                        );
+                      });
+                },
+                child: const Text(
+                  "Eliminar",
+                  style: TextStyle(color: Colors.red),
+                ),
+              ),
+            ],
+          ),
     );
   }
 }
